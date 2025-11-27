@@ -95,7 +95,7 @@ export async function POST(req: Request) {
 
 📌 ${contact.position}
 🏢 ${contact.company}
-Автор: @${contact.username ?? "не указан"}
+Автор: ${contact.username ?? "не указан"}
 
 👤 Кандидат:
 @${viewer_username ?? "не указан"}

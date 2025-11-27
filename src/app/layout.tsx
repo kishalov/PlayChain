@@ -18,12 +18,15 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <html lang="en" className="dark" data-theme="blue">
-      <body>
-        {children}
-      </body>
-    </html>
-  );
+	return (
+		<html lang="en" className={`${geistSans.variable} ${geistMono.variable} dark`} data-theme="blue">
+			<head>
+				{/* Telegram WebApp SDK */}
+				<script src="https://telegram.org/js/telegram-web-app.js" />
+			</head>
+			<body>
+				{children}
+			</body>
+		</html>
+	);
 }
-
