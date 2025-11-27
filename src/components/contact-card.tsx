@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { ContactDrawer } from "./contact-drawer";
 
 import {
   Card,
@@ -77,7 +78,9 @@ export function ContactCard({
 
       <CardFooter>
         <CardAction className="w-full">
-          <Button className="w-full">Узнать контакт</Button>
+            <ContactDrawer contactId={123}>
+                <Button className="w-full">Узнать контакт</Button>
+            </ContactDrawer>
         </CardAction>
       </CardFooter>
     </Card>
