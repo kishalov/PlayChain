@@ -2,22 +2,20 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ContactCard } from "./contact-card"; // твой компонент карточки
+import { ContactCard } from "./contact-card";
 
-// пример данных (заменишь на свои)
-const allContacts = Array.from({ length: 200 }).map((_, i) => ({
-  id: i + 1,
-  title: `Traffic Manager #${i + 1}`,
-  company: "SpinMatrix Casino",
-  location: "Dubai",
-  tags: ["Affiliates", "RevShare", "CPA"],
-  date: "19 November",
-}));
+interface Contact {
+  title: string;
+  company: string;
+  location: string;
+  tags: string[];
+  date: string;
+}
 
-export function ContactsFeed() {
+export function ContactsFeed({ contacts }: { contacts: Contact[] }) {
   const [visibleCount, setVisibleCount] = useState(10);
 
-  const visibleItems = allContacts.slice(0, visibleCount);
+  const visibleItems = contacts.slice(0, visibleCount);
 
   function loadMore() {
     setVisibleCount((prev) => prev + 10);
@@ -25,9 +23,9 @@ export function ContactsFeed() {
 
   return (
     <div className="w-full flex flex-col gap-4 p-4">
-      {visibleItems.map((item) => (
+      {visibleItems.map((item, i) => (
         <ContactCard
-          key={item.id}
+          key={i}
           title={item.title}
           company={item.company}
           location={item.location}
@@ -36,7 +34,7 @@ export function ContactsFeed() {
         />
       ))}
 
-      {visibleCount < allContacts.length && (
+      {visibleCount < contacts.length && (
         <Button
           variant="secondary"
           className="mt-4 w-full"
