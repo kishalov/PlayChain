@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ContactDrawer } from "./contact-drawer";
+import { ContactDialog } from "./contact-dialog";
 
 import {
   Card,
@@ -37,7 +37,8 @@ export function ContactCard({
 
   return (
     <Card className="relative w-full max-w-full">
-      {/* Иконка избранного справа сверху */}
+      
+      {/* Иконка избранного */}
       <button
         onClick={() => setFav(!fav)}
         className="absolute right-4 top-4 text-muted-foreground"
@@ -78,9 +79,12 @@ export function ContactCard({
 
       <CardFooter>
         <CardAction className="w-full">
-            <ContactDrawer contactId={42}>
-                <Button className="w-full">Узнать контакт</Button>
-            </ContactDrawer>
+
+          {/* ← ЗДЕСЬ БЫЛ <ContactDrawer> */}
+          <ContactDialog contactId={42}>
+            <Button className="w-full">Узнать контакт</Button>
+          </ContactDialog>
+
         </CardAction>
       </CardFooter>
     </Card>
