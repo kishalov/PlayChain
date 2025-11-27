@@ -78,7 +78,7 @@ export function ContactCard({
 
       <CardFooter>
         <CardAction className="w-full">
-            <ContactDrawer contactId={123}>
+            <ContactDrawer contactId={42}>
                 <Button className="w-full">Узнать контакт</Button>
             </ContactDrawer>
         </CardAction>

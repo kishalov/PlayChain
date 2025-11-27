@@ -5,98 +5,117 @@ import { bot } from "@/lib/bot";
 const ADMIN_ID = process.env.ADMIN_TELEGRAM_ID!;
 
 export async function POST(req: Request) {
-  const {
-    contactId,
-    viewer_tg_id,
-    viewer_username,
-    viewer_profile
-  } = await req.json();
+	try {
+		console.log("▶ /api/respond CALLED");
 
-  // 1. Загружаем контакт
-  const { data: contact } = await db
-    .from("contacts")
-    .select("*")
-    .eq("id", contactId)
-    .single();
+		const body = await req.json();
+		console.log("BODY:", body);
 
-  if (!contact) {
-    return NextResponse.json({ error: "Contact not found" }, { status: 404 });
-  }
+		const {
+			contactId,
+			viewer_tg_id,
+			viewer_username,
+			viewer_profile,
+		} = body;
 
-  // 2. Создаём отклик
-  const { data: response, error: createError } = await db
-    .from("responses")
-    .insert({
-      contact_id: contactId,
-      viewer_tg_id,
-      viewer_username,
-      viewer_profile,
-      status: "pending"
-    })
-    .select()
-    .single();
+		if (!contactId || !viewer_profile) {
+			return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
+		}
 
-  if (createError) {
-    console.error(createError);
-    return NextResponse.json({ error: "Failed to create response" });
-  }
+		// Загружаем контакт
+		const { data: contact, error: contactError } = await db
+			.from("contacts")
+			.select("*")
+			.eq("id", contactId)
+			.single();
 
-  // 3. Автор активирован?
-  if (contact.telegram_id) {
-    await bot.telegram.sendMessage(
-      contact.telegram_id,
-      `
-🔥 Новый отклик!
+		if (contactError || !contact) {
+			return NextResponse.json({ error: "Contact not found" }, { status: 404 });
+		}
 
-По объявлению: ${contact.position}
-Компания: ${contact.company}
+		// Создаём отклик
+		const { data: response, error: responseError } = await db
+			.from("responses")
+			.insert({
+				contact_id: contactId,
+				viewer_tg_id,
+				viewer_username,
+				viewer_profile,
+				status: "pending",
+			})
+			.select()
+			.single();
 
-От: @${viewer_username}
-Роль: ${viewer_profile.role}
-Опыт: ${viewer_profile.experience}
-      `,
-      {
-        reply_markup: {
-          inline_keyboard: [
-            [
-              { text: "Ответить", callback_data: `accept_${response.id}` },
-              { text: "Отклонить", callback_data: `reject_${response.id}` }
-            ]
-          ]
-        }
-      }
-    );
+		if (responseError || !response) {
+			console.error("Insert error:", responseError);
+			return NextResponse.json({ error: "Failed to save response" }, { status: 500 });
+		}
 
-    await db
-      .from("responses")
-      .update({ status: "delivered" })
-      .eq("id", response.id);
+		// Если у контакта есть telegram_id — отправляем сообщение ему
+		if (contact.telegram_id) {
+			await bot.telegram.sendMessage(
+				contact.telegram_id,
+				`
+🔥 Новый отклик по вакансии!
 
-    return NextResponse.json({ ok: true });
-  }
+📌 *${contact.position}*
+🏢 ${contact.company}
 
-  // 4. Автор НЕ активирован → уведомляем АДМИНА
-  await bot.telegram.sendMessage(
-    ADMIN_ID,
-    `
-🔔 Отклик для неактивированного автора
+От: @${viewer_username ?? "не указано"}
+Роль: ${viewer_profile.role ?? "-"}
+Опыт: ${viewer_profile.experience ?? "-"}
+Портфолио: ${viewer_profile.portfolio ?? "-"}
+				`,
+				{
+					parse_mode: "Markdown",
+					reply_markup: {
+						inline_keyboard: [
+							[
+								{ text: "Ответить", callback_data: `accept_${response.id}` },
+								{ text: "Отклонить", callback_data: `reject_${response.id}` },
+							],
+						],
+					},
+				}
+			);
 
-Position: ${contact.position}
-Company: ${contact.company}
-Автор: @${contact.username} (не активирован)
+			await db
+				.from("responses")
+				.update({ status: "delivered" })
+				.eq("id", response.id);
 
-Кандидат:
-@${viewer_username}
-${viewer_profile.role}, ${viewer_profile.experience}
+			return NextResponse.json({ ok: true });
+		}
+
+		// Иначе — отправляем админу
+		await bot.telegram.sendMessage(
+			ADMIN_ID,
+			`
+🔔 Отклик на НЕактивированного автора
+
+📌 ${contact.position}
+🏢 ${contact.company}
+Автор: @${contact.username ?? "не указан"}
+
+👤 Кандидат:
+@${viewer_username ?? "не указан"}
+Роль: ${viewer_profile.role ?? "-"}
+Опыт: ${viewer_profile.experience ?? "-"}
+Портфолио: ${viewer_profile.portfolio ?? "-"}
 
 Response ID: ${response.id}
-    `
-  );
+			`
+		);
 
-  await db
-    .from("responses")
-    .update({ status: "moderated" })
-    .eq("id", response.id);
+		await db
+			.from("responses")
+			.update({ status: "moderated" })
+			.eq("id", response.id);
 
-  return NextResponse.json({ ok: true });
+		return NextResponse.json({ ok: true });
+
+	} catch (error) {
+		console.error("API ERROR:", error);
+		return NextResponse.json({ error: "Server error" }, { status: 500 });
+	}
 }

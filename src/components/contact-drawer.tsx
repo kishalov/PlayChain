@@ -33,21 +33,14 @@ export function ContactDrawer({ contactId, children }: ContactDrawerProps) {
     try {
       await fetch("/api/respond", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           contactId,
           viewer_tg_id: null,
-          viewer_username: "anonymous",
-          viewer_profile: {
-            role,
-            experience,
-            portfolio,
-          },
+          viewer_username: null,
+          viewer_profile: { role, experience, portfolio },
         }),
       });
-
     } finally {
       setLoading(false);
     }
@@ -55,15 +48,13 @@ export function ContactDrawer({ contactId, children }: ContactDrawerProps) {
 
   return (
     <Drawer>
-      <DrawerTrigger asChild>
-        {children}
-      </DrawerTrigger>
+      <DrawerTrigger asChild>{children}</DrawerTrigger>
 
       <DrawerContent>
         <DrawerHeader>
           <DrawerTitle>Ваша визитка</DrawerTitle>
           <DrawerDescription>
-            Эта информация отправится автору объявления (или администратору).
+            Эта информация отправится автору объявления или администратору.
           </DrawerDescription>
         </DrawerHeader>
 
@@ -71,37 +62,33 @@ export function ContactDrawer({ contactId, children }: ContactDrawerProps) {
           <div className="flex flex-col gap-2">
             <Label>Роль</Label>
             <Input
-              placeholder="Например: Game Developer"
               value={role}
               onChange={(e) => setRole(e.target.value)}
+              placeholder="Например: Game Developer"
             />
           </div>
 
           <div className="flex flex-col gap-2">
             <Label>Опыт</Label>
             <Input
-              placeholder="3 года, Senior, Middle..."
               value={experience}
               onChange={(e) => setExperience(e.target.value)}
+              placeholder="3 года, Middle..."
             />
           </div>
 
           <div className="flex flex-col gap-2">
-            <Label>Портфолио / профиль</Label>
+            <Label>Портфолио</Label>
             <Input
-              placeholder="Ссылка на GitHub, ArtStation или сайт"
               value={portfolio}
               onChange={(e) => setPortfolio(e.target.value)}
+              placeholder="GitHub / ArtStation / CV"
             />
           </div>
         </div>
 
         <DrawerFooter>
-          <Button
-            className="w-full"
-            disabled={loading}
-            onClick={sendResponse}
-          >
+          <Button className="w-full" disabled={loading} onClick={sendResponse}>
             {loading ? "Отправка..." : "Отправить отклик"}
           </Button>
 
