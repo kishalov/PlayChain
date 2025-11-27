@@ -58,24 +58,29 @@ export function ContactCard({
           {location}
         </CardDescription>
       </CardHeader>
+<CardContent>
+  <div className="flex flex-wrap gap-2 w-full">
+    {tags.map((tag) => (
+      <div
+        key={tag}
+        className="
+          bg-secondary
+          text-xs
+          px-3 py-1
+          rounded-md
+          max-w-[80%]
+        "
+      >
+        {tag}
+      </div>
+    ))}
+  </div>
 
-      <CardContent>
-        <div className="flex flex-wrap gap-2">
-          {tags.map((tag) => (
-            <Badge
-              key={tag}
-              variant="secondary"
-              className="text-xs px-3 py-1 rounded-md"
-            >
-              {tag}
-            </Badge>
-          ))}
-        </div>
+  <div className="text-muted-foreground text-sm mt-3">
+    Опубликовано {date}
+  </div>
+</CardContent>
 
-        <div className="text-muted-foreground text-sm mt-3">
-          Posted {date}
-        </div>
-      </CardContent>
 
       <CardFooter>
         <CardAction className="w-full">
