@@ -4,32 +4,45 @@ import { useState } from "react";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 
-const tags = [
-  { id: 1, label: "Для вас" },
-  { id: 2, label: "Kasino" },
-  { id: 3, label: "Affiliapats" },
-  { id: 4, label: "PSP / Payments" },
-  { id: 5, label: "Developers" },
-];
+export function TopTagsCarousel({
+  tags,
+  onSelect,
+}: {
+  tags: string[];
+  onSelect: (tag: string | null) => void;
+}) {
+  const [active, setActive] = useState<string>("Все");
 
-export function TopTagsCarousel() {
-  const [active, setActive] = useState(1);
+  function select(tag: string) {
+    setActive(tag);
+    onSelect(tag === "Все" ? null : tag);
+  }
 
   return (
     <ScrollArea className="w-full whitespace-nowrap">
       <div className="flex w-max space-x-2 p-4">
+        {/* Тег ВСЕ */}
+        <Badge
+          key="Все"
+          variant={active === "Все" ? "default" : "secondary"}
+          className="text-sm px-4 py-2 rounded-full cursor-pointer"
+          onClick={() => select("Все")}
+        >
+          Все
+        </Badge>
+
+        {/* Остальные теги */}
         {tags.map((tag) => (
           <Badge
-            key={tag.id}
-            variant={tag.id === active ? "default" : "secondary"}
+            key={tag}
+            variant={active === tag ? "default" : "secondary"}
             className="text-sm px-4 py-2 rounded-full cursor-pointer"
-            onClick={() => setActive(tag.id)}
+            onClick={() => select(tag)}
           >
-            {tag.label}
+            {tag}
           </Badge>
         ))}
       </div>
-
       <ScrollBar orientation="horizontal" />
     </ScrollArea>
   );

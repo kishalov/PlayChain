@@ -1,17 +1,18 @@
 import { TopAdsCarousel } from "@/components/top-ads-carousel";
-import { TopTagsCarousel } from "@/components/tags";
 import { SearchInput } from "@/components/search";
 import { ContactsFeed } from "@/components/feed";
 import { getContacts } from "@/lib/getContacts";
+import { FloatingBurgerButton } from "@/components/floating-burger-button";
 
 export default async function HomePage() {
-    const contacts = await getContacts();
-	return (
-		<main className="w-full min-h-screen">
+  const contacts = await getContacts();
+
+  return (
+    <main className="w-full min-h-screen pb-24"> {/* запас для кнопки */}
       <SearchInput />
-			<TopAdsCarousel />
-      <TopTagsCarousel />
+      <TopAdsCarousel />
       <ContactsFeed contacts={contacts} />
-		</main>
-	);
+      <FloatingBurgerButton />
+    </main>
+  );
 }
