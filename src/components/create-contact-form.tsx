@@ -40,7 +40,7 @@ export function CreateContactForm({
         location,
         description,
         telegram_id: tg?.id ?? null,
-        username: tg?.username ?? null,
+        username: tg?.username ? `@${tg.username}` : null
       }),
     });
 
@@ -49,7 +49,6 @@ export function CreateContactForm({
     if (res.ok) {
       toast.success("Объявление отправлено!");
 
-      // закрываем Sheet через callback
       onSuccess?.();
     } else {
       toast.error("Ошибка при сохранении");
