@@ -1,72 +1,69 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Button } from "@/components/ui/button";
-import { ContactCard } from "./contact-card";
-import { TopTagsCarousel } from "./tags";
+import { ContactCard } from "./contact-card"
+import { SearchInput } from "./search";
 
 interface Contact {
-  id: number;
-  title: string;
-  company: string;
-  location: string;
-  position: string;
-  sector: string;
-  date: string;
+	id: number;
+	title: string;
+	company: string;
+	location: string;
+	position: string;
+	sector: string;
+	date: string;
+	description: string;
 }
 
 export function ContactsFeed({ contacts }: { contacts: Contact[] }) {
-  const [visibleCount, setVisibleCount] = useState(10);
-  const [activeTag, setActiveTag] = useState<string | null>(null);
+	const [searchQuery, setSearchQuery] = useState("");
+	const [selectedCard, setSelectedCard] = useState<Contact | null>(null);
 
-  // Получаем уникальные теги
-  const tags = useMemo(() => {
-    return Array.from(
-      new Set(
-        contacts
-          .map((c) => c.sector?.trim())
-          .filter(Boolean)
-      )
-    );
-  }, [contacts]);
+	// Фильтрация по Enter
+	const filtered = searchQuery
+		? contacts.filter((c) => {
+				const q = searchQuery.toLowerCase();
+				return (
+					c.title.toLowerCase().includes(q) ||
+					c.company.toLowerCase().includes(q) ||
+					c.position.toLowerCase().includes(q) ||
+					c.sector.toLowerCase().includes(q) ||
+					c.location.toLowerCase().includes(q) ||
+					c.description.toLowerCase().includes(q)
+				);
+		  })
+		: contacts;
 
-  // Фильтрация
-  const filtered = activeTag
-    ? contacts.filter((c) => c.sector === activeTag)
-    : contacts;
+	return (
+		<div className="w-full flex flex-col">
 
-  const visibleItems = filtered.slice(0, visibleCount);
+			{/* SEARCH */}
+			<SearchInput
+				onSearch={(q) => {
+					setSelectedCard(null); // ← выключаем одиночный режим
+					setSearchQuery(q);
+				}}
+				onSelectItem={(item) => {
+					setSelectedCard(item);
+					setSearchQuery(""); // ← отключаем фильтрацию
+				}}
+			/>
 
-  return (
-    <div className="w-full flex flex-col">
-      
-      {/* Теги */}
-      <TopTagsCarousel tags={tags} onSelect={setActiveTag} />
+			<div className="flex flex-col gap-4 p-4">
 
-      {/* Лента */}
-      <div className="flex flex-col gap-4 p-4">
-        {visibleItems.map((item) => (
-          <ContactCard
-            key={item.id}
-            title={item.title}
-            company={item.company}
-            location={item.location}
-            position={item.position}
-            date={item.date}
-          />
-        ))}
+				{/* Отображаем одну карточку */}
+				{selectedCard && (
+					<ContactCard {...selectedCard} />
+				)}
 
-        {/* Load more */}
-        {visibleCount < filtered.length && (
-          <Button
-            variant="secondary"
-            className="mt-4 w-full"
-            onClick={() => setVisibleCount((p) => p + 10)}
-          >
-            Загрузить ещё
-          </Button>
-        )}
-      </div>
-    </div>
-  );
+				{/* Отображаем результаты фильтрации */}
+				{!selectedCard &&
+					filtered.map((item) => (
+						<ContactCard key={item.id} {...item} />
+					))}
+			</div>
+
+		</div>
+	);
 }
+

@@ -5,102 +5,143 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import {
+	Select,
+	SelectTrigger,
+	SelectValue,
+	SelectContent,
+	SelectItem,
+} from "@/components/ui/select";
+
 import { useTelegramUser } from "@/hooks/useTelegramUser";
+import { useTranslation } from "@/hooks/useTranslation";
 import { toast } from "sonner";
 
 export function CreateContactForm({
-  onSuccess,
+	onSuccess,
 }: {
-  onSuccess?: () => void;
+	onSuccess?: () => void;
 }) {
-  const tg = useTelegramUser(); // ← правильно
-  const [company, setCompany] = useState("");
-  const [position, setPosition] = useState("");
-  const [sector, setSector] = useState("");
-  const [location, setLocation] = useState("");
-  const [description, setDescription] = useState("");
-  const [loading, setLoading] = useState(false);
+	const { t } = useTranslation();
+	const tg = useTelegramUser();
 
-  async function submit() {
-    if (!company || !position || !sector) {
-      toast.error("Заполните обязательные поля");
-      return;
-    }
+	const [company, setCompany] = useState("");
+	const [position, setPosition] = useState("");
+	const [sector, setSector] = useState("");
+	const [location, setLocation] = useState("");
+	const [description, setDescription] = useState("");
+	const [loading, setLoading] = useState(false);
 
-    setLoading(true);
+	async function submit() {
+		if (!company || !position || !sector) {
+			toast.error(t("create_contact_required_error"));
+			return;
+		}
 
-    const res = await fetch("/api/create-contact", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        company,
-        position,
-        sector,
-        location,
-        description,
-        telegram_id: tg?.id ?? null,
-        username: tg?.username ? `@${tg.username}` : null
-      }),
-    });
+		setLoading(true);
 
-    setLoading(false);
+		const res = await fetch("/api/create-contact", {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({
+				company,
+				position,
+				sector,
+				location,
+				description,
+				telegram_id: tg?.id ?? null,
+				username: tg?.username ? `@${tg.username}` : null,
+			}),
+		});
 
-    if (res.ok) {
-      toast.success("Объявление отправлено!");
+		setLoading(false);
 
-      onSuccess?.();
-    } else {
-      toast.error("Ошибка при сохранении");
-    }
-  }
+		if (res.ok) {
+			toast.success(t("create_contact_success"));
+			onSuccess?.();
+		} else {
+			toast.error(t("create_contact_error"));
+		}
+	}
 
-  return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-col gap-1">
-        <Label>Компания *</Label>
-        <Input value={company} onChange={(e) => setCompany(e.target.value)} />
-      </div>
+	return (
+		<div className="flex flex-col gap-4">
+			{/* Company */}
+			<div className="flex flex-col gap-1">
+				<Label>{t("create_contact_company")}</Label>
+				<Input
+					value={company}
+					onChange={(e) => setCompany(e.target.value)}
+					placeholder={t("create_contact_company_placeholder")}
+				/>
+			</div>
 
-      <div className="flex flex-col gap-1">
-        <Label>Позиция *</Label>
-        <Input value={position} onChange={(e) => setPosition(e.target.value)} />
-      </div>
+			{/* Position */}
+			<div className="flex flex-col gap-1">
+				<Label>{t("create_contact_position")}</Label>
+				<Input
+					value={position}
+					onChange={(e) => setPosition(e.target.value)}
+					placeholder={t("create_contact_position_placeholder")}
+				/>
+			</div>
 
-      <div className="flex flex-col gap-1">
-        <Label>Сектор *</Label>
-        <Select onValueChange={setSector}>
-          <SelectTrigger>
-            <SelectValue placeholder="Выберите сектор" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="Game Provider">Game Provider</SelectItem>
-            <SelectItem value="Affiliate Network">Affiliate Network</SelectItem>
-            <SelectItem value="Operator">Operator</SelectItem>
-            <SelectItem value="Payment / PSP">Payment / PSP</SelectItem>
-            <SelectItem value="Marketing">Marketing</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+			{/* Sector */}
+			<div className="flex flex-col gap-1">
+				<Label>{t("create_contact_sector")}</Label>
 
-      <div className="flex flex-col gap-1">
-        <Label>Локация</Label>
-        <Input value={location} onChange={(e) => setLocation(e.target.value)} />
-      </div>
+				<Select onValueChange={setSector}>
+					<SelectTrigger>
+						<SelectValue placeholder={t("create_contact_sector_placeholder")} />
+					</SelectTrigger>
 
-      <div className="flex flex-col gap-1">
-        <Label>Описание</Label>
-        <Textarea
-          value={description}
-          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-            setDescription(e.target.value)
-          }
-        />
-      </div>
+					<SelectContent>
+						<SelectItem value="Game Provider">
+							{t("sector_game_provider")}
+						</SelectItem>
 
-      <Button onClick={submit} disabled={loading}>
-        {loading ? "Отправка..." : "Отправить"}
-      </Button>
-    </div>
-  );
+						<SelectItem value="Affiliate Network">
+							{t("sector_affiliate_network")}
+						</SelectItem>
+
+						<SelectItem value="Operator">
+							{t("sector_operator")}
+						</SelectItem>
+
+						<SelectItem value="Payment / PSP">
+							{t("sector_payment")}
+						</SelectItem>
+
+						<SelectItem value="Marketing">
+							{t("sector_marketing")}
+						</SelectItem>
+					</SelectContent>
+				</Select>
+			</div>
+
+			{/* Location */}
+			<div className="flex flex-col gap-1">
+				<Label>{t("create_contact_location")}</Label>
+				<Input
+					value={location}
+					onChange={(e) => setLocation(e.target.value)}
+					placeholder={t("create_contact_location_placeholder")}
+				/>
+			</div>
+
+			{/* Description */}
+			<div className="flex flex-col gap-1">
+				<Label>{t("create_contact_description")}</Label>
+				<Textarea
+					value={description}
+					onChange={(e) => setDescription(e.target.value)}
+					placeholder={t("create_contact_description_placeholder")}
+				/>
+			</div>
+
+			<Button onClick={submit} disabled={loading}>
+				{loading ? t("create_contact_submitting") : t("create_contact_submit")}
+			</Button>
+		</div>
+	);
 }

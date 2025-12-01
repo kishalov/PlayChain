@@ -3,7 +3,7 @@ import { db } from "@/lib/db";
 export async function getContacts() {
   const { data, error } = await db
     .from("contacts")
-    .select("id, position, company, sector, location, created_at")
+    .select("id, position, company, sector, location, description, created_at")
     .order("id", { ascending: false });
 
   if (error) {
@@ -19,5 +19,6 @@ export async function getContacts() {
     position: item.position ?? "",
     sector: item.sector ?? "",
     date: new Date(item.created_at).toLocaleDateString("ru-RU"),
+    description: item.description ?? "",
   }));
 }

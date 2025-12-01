@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useTelegramUser } from "@/hooks/useTelegramUser";
+import { useTranslation } from "@/hooks/useTranslation";
 import { toast } from "sonner";
 
 interface ContactDrawerProps {
@@ -15,6 +16,8 @@ interface ContactDrawerProps {
 }
 
 export function ContactDialog({ contactId, children }: ContactDrawerProps) {
+	const { t } = useTranslation();
+
 	const [role, setRole] = useState("");
 	const [experience, setExperience] = useState("");
 	const [portfolio, setPortfolio] = useState("");
@@ -38,7 +41,7 @@ export function ContactDialog({ contactId, children }: ContactDrawerProps) {
 			});
 
 			if (res.ok) {
-				toast.success("Отклик отправлен!");
+				toast.success(t("visitcard_success"));
 
 				// закрываем через скрытый Dialog.Close
 				setTimeout(() => {
@@ -56,9 +59,7 @@ export function ContactDialog({ contactId, children }: ContactDrawerProps) {
 
 	return (
 		<Dialog.Root>
-			<Dialog.Trigger asChild>
-				{children}
-			</Dialog.Trigger>
+			<Dialog.Trigger asChild>{children}</Dialog.Trigger>
 
 			<Dialog.Portal>
 				<Dialog.Overlay className="fixed inset-0 bg-black/50 backdrop-blur-sm" />
@@ -71,49 +72,48 @@ export function ContactDialog({ contactId, children }: ContactDrawerProps) {
 					"
 				>
 
-					<div className="w-12 h-1.5 bg-muted mx-auto rounded-full mb-4" />
-
 					<div className="flex flex-col gap-0.5 text-center mb-4">
 						<Dialog.Title className="text-lg font-semibold">
-							Ваша визитка
+							{t("visitcard_title")}
 						</Dialog.Title>
+
 						<Dialog.Description className="text-muted-foreground text-sm">
-							Эта информация отправится автору объявления или администратору.
+							{t("visitcard_subtitle")}
 						</Dialog.Description>
 					</div>
 
 					<div className="flex flex-col gap-4">
 						<div className="flex flex-col gap-2">
-							<Label>Роль</Label>
+							<Label>{t("visitcard_role")}</Label>
 							<Input
 								value={role}
 								onChange={(e) => setRole(e.target.value)}
-								placeholder="Например: Game Developer"
+								placeholder={t("visitcard_role_placeholder")}
 							/>
 						</div>
 
 						<div className="flex flex-col gap-2">
-							<Label>Опыт</Label>
+							<Label>{t("visitcard_experience")}</Label>
 							<Input
 								value={experience}
 								onChange={(e) => setExperience(e.target.value)}
-								placeholder="3 года, Middle..."
+								placeholder={t("visitcard_experience_placeholder")}
 							/>
 						</div>
 
 						<div className="flex flex-col gap-2">
-							<Label>Портфолио</Label>
+							<Label>{t("visitcard_portfolio")}</Label>
 							<Input
 								value={portfolio}
 								onChange={(e) => setPortfolio(e.target.value)}
-								placeholder="GitHub / ArtStation / CV"
+								placeholder={t("visitcard_portfolio_placeholder")}
 							/>
 						</div>
 					</div>
 
 					<div className="mt-6 flex flex-col gap-2">
 						<Button className="w-full" disabled={loading} onClick={sendResponse}>
-							{loading ? "Отправка..." : "Отправить отклик"}
+							{loading ? t("create_contact_submitting") : t("visitcard_submit")}
 						</Button>
 
 						<Dialog.Close asChild>
@@ -122,7 +122,7 @@ export function ContactDialog({ contactId, children }: ContactDrawerProps) {
 								className="w-full"
 								data-dialog-close
 							>
-								Отмена
+								{t("visitcard_cancel")}
 							</Button>
 						</Dialog.Close>
 					</div>
