@@ -12,9 +12,9 @@ export default async function HomePage() {
     <main className="w-full min-h-screen pb-24"> {/* запас для кнопки */}
       {/* <SearchInput />
       <TopAdsCarousel />
-      <ContactsFeed contacts={contacts} />
-      <FloatingBurgerButton /> */}
+      <ContactsFeed contacts={contacts} /> */}
       <ContactsSearchFeed contacts={contacts} />
+      <FloatingBurgerButton />
     </main>
   );
 }
